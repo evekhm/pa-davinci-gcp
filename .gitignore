@@ -150,8 +150,6 @@ gradle-app.setting
 bin/
 .vscode/
 
-# ignore the embeded CDS Library
-CDS-Library
 
 # ignore the value set cache
 server/ValueSetCache

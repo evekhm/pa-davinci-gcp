@@ -3,6 +3,7 @@ package org.hl7.davinci.endpoint.files;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.hl7.ShortNameMaps;
 import org.hl7.davinci.SuppressParserErrorHandler;
@@ -21,6 +22,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
+import org.zeroturnaround.zip.ZipUtil;
 
 public abstract class CommonFileStore implements FileStore {
 
@@ -185,6 +187,59 @@ public abstract class CommonFileStore implements FileStore {
   public List<FhirResource> findAllFhirResources() {
     logger.info("CommonFileStore::findAllFhirResources()");
     return fhirResources.findAll();
+  }
+
+  protected boolean reloadFromZip(String zipPath, String rulePath, String examplesPath, Boolean deleteZip) {
+    logger.info("CommonFileStore::reloadFromZip()");
+    // download the repo
+    File zipFile = new File(zipPath);
+
+    // unzip the file in place (folder will be name of zip file)
+    ZipUtil.explode(zipFile);
+
+    // get a list of files in the directory that was unzipped
+    File[] files = zipFile.listFiles();
+    File location = null;
+    if (files.length > 0) {
+      if (files[0].isDirectory()) {
+        location = files[0];
+      }
+    }
+    if (location != null) {
+
+      // load the folder
+
+      String path = location.getPath() + "/" + rulePath;
+      try {
+        reloadFromFolder(path + "/");
+      } catch (IOException e) {
+        logger.error("FATAL ERROR: Failed to reload from folder: " + e.getMessage());
+        System.exit(1);
+      }
+
+      // load the examples folder
+      path = location.getPath() + "/" + examplesPath;
+      try {
+        reloadFromFolder(path + "/");
+      } catch (IOException e) {
+        logger.error("FATAL ERROR: Failed to reload from examples folder: " + e.getMessage());
+        System.exit(1);
+      }
+
+      // clean up the zip file
+      if (deleteZip){
+        try {
+          FileUtils.deleteDirectory(zipFile);
+        } catch (IOException e) {
+          logger.warn("CommonFileStore::reloadFromZip() failed to delete directory: " + e.getMessage());
+          return false;
+        }
+      }
+
+    } else {
+      return false;
+    }
+    return true;
   }
 
   protected void reloadFromFolder(String path) throws IOException {

@@ -13,7 +13,8 @@ spring:
       hibernate.dialect: org.hibernate.dialect.H2Dialect
       hibernate.hbm2ddl.auto: create-drop
   profiles:
-    active: localDb
+    active: gcp
+#    active: localDb
 #    active: gitHub
 #    active: cdsConnect
 
@@ -31,6 +32,12 @@ corsOrigins:
   - "http://localhost:3000"
   - "http://localhost:3002"
   - "http://localhost:3005"
+
+endpoints:
+  crdRequestGenerator: "http://localhost:3000"
+  testEhr: "http://localhost:8080"
+  auth: "http://localhost:8180"
+  dtr: "http://localhost:3005"
 
 checkPractitionerLocation: false
 
@@ -66,6 +73,17 @@ gitHubConfig:
   rule-path: CRD-DTR/
   examplesPath: Examples/
   useZipForReload: true
+
+google:
+  storage:
+    rulesPath: CRD-DTR/
+    examplesPath: Examples/
+    bucket: prior-auth-334002-crd
+    db: CDS-Library.zip
+    projectId: prior-auth-334002
+  pod:
+    zip: /path/to/CDS-Library.zip
+    path: /path/to/CDS-Library.zip/CDS-Library
 
 localDb:
   path: CDS-Library/CRD-DTR/

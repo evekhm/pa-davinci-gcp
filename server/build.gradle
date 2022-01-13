@@ -70,6 +70,9 @@ dependencies {
     compile 'org.zeroturnaround:zt-zip:1.13'
 
     compile group: 'org.kohsuke', name:'github-api', version:'1.77'
+
+    implementation platform("com.google.cloud:libraries-bom:20.6.0");
+    implementation("com.google.cloud:google-cloud-storage");
 }
 
 task buildReact(type:Exec) {

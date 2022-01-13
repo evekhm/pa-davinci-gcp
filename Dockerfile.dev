@@ -2,6 +2,10 @@
 FROM gradle:6.9.0-jdk11
 # Copy app files to container
 COPY --chown=gradle:gradle . /CRD/
+
+# Temp workaround to test locally
+# COPY keys/* /usr/keys
+
 # Set working directory so that all subsequent command runs in this folder
 WORKDIR /CRD
 # Embed CDS Library

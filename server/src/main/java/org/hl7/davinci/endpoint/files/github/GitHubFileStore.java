@@ -56,8 +56,10 @@ public class GitHubFileStore extends CommonFileStore {
     fhirResources.deleteAll();
 
     if (config.getGitHubConfig().getUseZipForReload()) {
-      success = reloadFromZip();
-
+      String zipPath = connection.downloadRepo();
+      String rulePath = config.getGitHubConfig().getRulePath();
+      String examplesPath = config.getGitHubConfig().getExamplesPath();
+      success = reloadFromZip(zipPath, rulePath, examplesPath, true);
     } else {
       String rulePath = config.getGitHubConfig().getRulePath();
       success = reloadFromGitHub(rulePath);
@@ -78,58 +80,6 @@ public class GitHubFileStore extends CommonFileStore {
     } else {
       logger.warn("GitHubFileStore::reload(): failed in " + seconds + " seconds");
     }
-  }
-
-  private boolean reloadFromZip() {
-    logger.info("GitHubFileStore::reloadFromZip()");
-    // download the repo
-    String zipPath = connection.downloadRepo();
-    File zipFile = new File(zipPath);
-
-    // unzip the file in place (folder will be name of zip file)
-    ZipUtil.explode(zipFile);
-
-    // get a list of files in the directory that was unzipped
-    File[] files = zipFile.listFiles();
-    File location = null;
-    if (files.length > 0) {
-      if (files[0].isDirectory()) {
-        location = files[0];
-      }
-    }
-    if (location != null) {
-
-      // load the folder
-      String rulePath = config.getGitHubConfig().getRulePath();
-      String path = location.getPath() + "/" + rulePath;
-      try {
-        reloadFromFolder(path + "/");
-      } catch (IOException e) {
-        logger.error("FATAL ERROR: Failed to reload from folder: " + e.getMessage());
-        System.exit(1);
-      }
-
-      // load the examples folder
-      String examplesPath = config.getGitHubConfig().getExamplesPath();
-      path = location.getPath() + "/" + examplesPath;
-      try {
-        reloadFromFolder(path + "/");
-      } catch (IOException e) {
-        logger.error("FATAL ERROR: Failed to reload from examples folder: " + e.getMessage());
-        System.exit(1);
-      }
-
-      // clean up the zip file
-      try {
-        FileUtils.deleteDirectory(zipFile);
-      } catch (IOException e) {
-        logger.warn("GitHubFileStore::reloadFromZip() failed to delete directory: " + e.getMessage());
-        return false;
-      }
-    } else {
-      return false;
-    }
-    return true;
   }
 
   private boolean reloadFromGitHub(String rulePath) {
