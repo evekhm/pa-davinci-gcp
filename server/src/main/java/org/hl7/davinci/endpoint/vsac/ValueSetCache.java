@@ -79,6 +79,7 @@ public class ValueSetCache {
       logger.error(
           "VSAC_API_KEY not found in environment variables. ValueSetCache will not be able to fetch valuesets.");
     } else {
+      logger.info("Using VSAC_API_KEY = " + apiKey);
       initializeLoader(apiKey);
     }
   }

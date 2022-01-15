@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
+import org.apache.commons.io.FileUtils;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
@@ -72,13 +73,14 @@ public class GCPFileStore extends CommonFileStore {
     logger.info(String.format("GCPFileStore::reload() projectId=%s, db=%s, bucket=%s",
         projectId, objectName, bucketName));
 
+    logger.info(System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
     Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
     Blob blob = null;
 
     try {
       blob = storage.get(bucketName, objectName);
     } catch (StorageException e) {
-      logger.error("Unable to get blob from GCP " + e);
+      logger.error("GCPFileStore::reload() - Unable to get blob from GCP " + e);
     }
 
     if (blob != null) {
@@ -86,26 +88,37 @@ public class GCPFileStore extends CommonFileStore {
         //Check for destination directory
         File destDirectory = new File(destFilePath);
         File parentPath = destDirectory.getParentFile();
-        boolean parentDirectoryOk = false;
+        boolean readyForDownload = true;
         if (!parentPath.exists()){
           try {
-            parentDirectoryOk = parentPath.mkdirs();
+            readyForDownload = parentPath.mkdirs();
           } catch (SecurityException exc) {
-            logger.error(String.format("Unable to create destination directory %s - %s", destFilePath, exc));
+            readyForDownload = false;
+            logger.error(String.format("GCPFileStore::reload() - Unable to create destination directory %s - %s", destFilePath, exc));
           }
         }
-        else
-          parentDirectoryOk = true;
 
-        if(parentDirectoryOk) {
+        if (readyForDownload && destDirectory.exists() && destDirectory.isDirectory()){
+          logger.info(String.format("GCPFileStore::reload() - Removing existing library, to reload with the new one %s - %s/%s",
+              destDirectory, bucketName, objectName));
+          try {
+            FileUtils.deleteDirectory(destDirectory);
+          } catch (IOException exc) {
+            readyForDownload = false;
+            logger.error(String.format("GCPFileStore::reload() - Unable to delete existing directory destination directory %s - %s", destDirectory, exc));
+          }
+        }
+        logger.info(String.valueOf(readyForDownload));
+        if(readyForDownload) {
+          logger.info(String.format("GCPFileStore::reload() - Downloading to %s", destFilePath));
           blob.downloadTo(Paths.get(destFilePath));
           success = reloadFromZip(destFilePath, rules, examples, false);
         }
         else
-          logger.error("Could not create local directory " + destFilePath);
+          logger.error("GCPFileStore::reload() - Could not create local directory " + destFilePath);
 
       } catch (StorageException e) {
-        logger.error("Unable to download blob data inside the pod - " + e);
+        logger.error("GCPFileStore::reload() - Unable to download blob data inside the pod - " + e);
       }
     }
 
