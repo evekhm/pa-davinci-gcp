@@ -153,3 +153,4 @@ bin/
 
 # ignore the value set cache
 server/ValueSetCache
+/server/CDS-Library/
