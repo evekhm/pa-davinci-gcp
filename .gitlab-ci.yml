@@ -1,0 +1,63 @@
+# REF: https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#using-docker-in-docker-image-from-container-registry
+image: docker:${DOCKER_IMAGE_VERSION}
+
+services:
+- docker:${DOCKER_IMAGE_VERSION}-dind
+
+stages:
+#  - unit-test
+- build-image
+#- test-image
+#- release-image
+
+
+variables:
+  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+  DOCKER_IMAGE_VERSION: 19.03.1
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:test_${CI_COMMIT_SHORT_SHA}
+  CONTAINER_LATEST_IMAGE: $CI_REGISTRY_IMAGE:latest
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:release_${CI_COMMIT_SHORT_SHA}
+  STAGING_ENABLED: "1"
+  POSTGRES_ENABLED: "0"
+  ROLLOUT_RESOURCE_TYPE: deployment
+  INCREMENTAL_ROLLOUT_ENABLED: "0"
+  KUBE_CONTEXT: "gcp-solutions/hcls/gke-deploy-env:gitlab-agent"
+  KUBE_INGRESS_BASE_DOMAIN: 'papanca.com'
+  CI_KUBERNETES_ACTIVE: 'true'
+  KUBE_NAMESPACE: "${CI_PROJECT_ID}-${CI_ENVIRONMENT_SLUG}"
+
+#unit-test:
+#  image: python:3.7.2-slim
+#  stage: unit-test
+#  script:
+#    - pip install pipenv --upgrade
+#    - pipenv install --deploy --system
+#    - pipenv run pytest
+
+build-image:
+  stage: build-image
+  script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker build --pull -t $CONTAINER_TEST_IMAGE .
+  - docker push $CONTAINER_TEST_IMAGE
+
+#test-image:
+#  stage: test-image
+#  script:
+#  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#  - docker pull $CONTAINER_TEST_IMAGE
+#  - docker run $CONTAINER_TEST_IMAGE pipenv run pytest
+#
+#release-image:
+#  stage: release-image
+#  script:
+#  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#  - docker pull $CONTAINER_TEST_IMAGE
+#  - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+#  - docker push $CONTAINER_RELEASE_IMAGE
+#  - docker tag $CONTAINER_RELEASE_IMAGE $CONTAINER_LATEST_IMAGE
+#  - docker push $CONTAINER_LATEST_IMAGE
+#  only:
+#  - master
