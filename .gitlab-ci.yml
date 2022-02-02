@@ -8,7 +8,7 @@ stages:
 #  - unit-test
 - build-image
 #- test-image
-#- release-image
+- deploy
 
 
 variables:
@@ -61,3 +61,11 @@ build-image:
 #  - docker push $CONTAINER_LATEST_IMAGE
 #  only:
 #  - master
+
+deploy:
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: [""]
+  script:
+  - kubectl config use-context gcp-solutions/hcls/claims-modernization/gitlab-gke:gke
+  - kubectl get pods
