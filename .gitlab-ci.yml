@@ -6,7 +6,7 @@ services:
 
 stages:
 #  - unit-test
-- build-image
+# - build-image
 #- test-image
 - deploy
 
