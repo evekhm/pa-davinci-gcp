@@ -5,9 +5,9 @@ services:
 - docker:${DOCKER_IMAGE_VERSION}-dind
 
 stages:
-#  - unit-test
+# - unit-test
 # - build-image
-#- test-image
+# - test-image
 - deploy
 
 
