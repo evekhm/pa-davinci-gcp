@@ -71,3 +71,4 @@ deploy:
   script:
   - kubectl config use-context $KUBE_CONTEXT
   - kubectl get pods
+  - kubectl apply -f ${CI_PROJECT_DIR}/k8s/*
