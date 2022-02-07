@@ -44,6 +44,12 @@ variables:
 #   - docker build --pull -t $CONTAINER_TEST_IMAGE .
 #   - docker push $CONTAINER_TEST_IMAGE
 
+deploy:
+  variables:
+    ENVIRONMENT: CRD
+    IMAGE: $CONTAINER_TEST_IMAGE
+  stage: deploy
+  trigger: gcp-solutions/hcls/claims-modernization/pa-ref-impl/DRLS-GCP
 #test-image:
 #  stage: test-image
 #  script:
@@ -62,13 +68,3 @@ variables:
 #  - docker push $CONTAINER_LATEST_IMAGE
 #  only:
 #  - master
-
-deploy:
-  stage: deploy
-  image:
-    name: bitnami/kubectl:latest
-    entrypoint: [""]
-  script:
-  - kubectl config use-context $KUBE_CONTEXT
-  - kubectl get pods
-  - kubectl apply -f ${CI_PROJECT_DIR}/k8s/*
