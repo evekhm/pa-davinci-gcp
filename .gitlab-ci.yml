@@ -34,6 +34,7 @@ before_script:
  build-image:
    stage: build-image
    script:
+   - echo "Building container image [${CONTAINER_TEST_IMAGE}]..."
    - docker build --pull -t ${CONTAINER_TEST_IMAGE} -t ${CONTAINER_LATEST_IMAGE} .
    - docker push ${CONTAINER_TEST_IMAGE}
    - docker push ${CONTAINER_LATEST_IMAGE}
