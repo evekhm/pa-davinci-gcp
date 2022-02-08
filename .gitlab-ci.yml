@@ -21,7 +21,7 @@ variables:
   CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:release_${CI_PIPELINE_ID}
 
 before_script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+- docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 #unit-test:
 #  image: python:3.7.2-slim
@@ -31,12 +31,12 @@ before_script:
 #    - pipenv install --deploy --system
 #    - pipenv run pytest
 
- build-image:
-   stage: build-image
-   script:
-   - docker build --pull -t ${CONTAINER_TEST_IMAGE} -t ${CONTAINER_LATEST_IMAGE} .
-   - docker push ${CONTAINER_TEST_IMAGE}
-   - docker push ${CONTAINER_LATEST_IMAGE}
+build-image:
+  stage: build-image
+  script:
+  - docker build --pull -t ${CONTAINER_TEST_IMAGE} -t ${CONTAINER_LATEST_IMAGE} .
+  - docker push ${CONTAINER_TEST_IMAGE}
+  - docker push ${CONTAINER_LATEST_IMAGE}
 
 
 #test-image:
