@@ -55,6 +55,7 @@ deploy:
   stage: deploy
   trigger: gcp-solutions/hcls/claims-modernization/pa-ref-impl/DRLS-GCP
 
+
 release-image:
   stage: release-image
   script:
