@@ -1,69 +1,14 @@
-# REF: https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#using-docker-in-docker-image-from-container-registry
-image: docker:${DOCKER_IMAGE_VERSION}
+variables: # TO be passed downstream
+  DEPLOY_PROJECT: 'gcp-solutions/hcls/claims-modernization/pa-ref-impl/DRLS-GCP'
 
-services:
-- docker:${DOCKER_IMAGE_VERSION}-dind
+include:
+- project: 'gcp-solutions/hcls/claims-modernization/gitlab-ci'
+  file: '/.gitlab/ci/.build.gitlab-ci.yml'
+- project: 'gcp-solutions/hcls/claims-modernization/gitlab-ci'
+  file: '/.gitlab/ci/.deploy-trigger.gitlab-ci.yml'
 
 stages:
-# - unit-test
-- build-image
-# - test-image
+- build
+- vars #Dynamically generate file with parameters
 - deploy
-- release-image
 
-variables:
-  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
-  DOCKER_IMAGE_VERSION: 19.03.1
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_CERTDIR: "/certs"
-  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE/${CI_COMMIT_REF_SLUG}:test_${CI_PIPELINE_ID}
-  CONTAINER_LATEST_IMAGE: $CI_REGISTRY_IMAGE/${CI_COMMIT_REF_SLUG}:latest
-  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:release_${CI_PIPELINE_ID}
-
-before_script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-
-#unit-test:
-#  image: python:3.7.2-slim
-#  stage: unit-test
-#  script:
-#    - pip install pipenv --upgrade
-#    - pipenv install --deploy --system
-#    - pipenv run pytest
-
- build-image:
-   stage: build-image
-   script:
-   - echo "Building container image [${CONTAINER_TEST_IMAGE}]..."
-   - docker build --pull -t ${CONTAINER_TEST_IMAGE} -t ${CONTAINER_LATEST_IMAGE} .
-   - docker push ${CONTAINER_TEST_IMAGE}
-   - docker push ${CONTAINER_LATEST_IMAGE}
-
-
-#test-image:
-#  stage: test-image
-#  script:
-#  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-#  - docker pull $CONTAINER_TEST_IMAGE
-#  - docker run $CONTAINER_TEST_IMAGE pipenv run pytest
-
-
-deploy:
-  variables:
-    APPLICATION: crd
-    IMAGE_TAG: $CONTAINER_TEST_IMAGE
-  stage: deploy
-  trigger: gcp-solutions/hcls/claims-modernization/pa-ref-impl/DRLS-GCP
-
-
-release-image:
-  stage: release-image
-  script:
-  - docker pull $CONTAINER_TEST_IMAGE
-  - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
-  - docker push $CONTAINER_RELEASE_IMAGE
-  - docker tag $CONTAINER_RELEASE_IMAGE $CONTAINER_LATEST_IMAGE
-  - docker push $CONTAINER_LATEST_IMAGE
-  when: manual
-  only:
-  - master
