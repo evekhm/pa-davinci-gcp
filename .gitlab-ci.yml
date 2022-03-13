@@ -1,5 +1,6 @@
 variables: # TO be passed downstream
   DEPLOY_PROJECT: 'gcp-solutions/hcls/claims-modernization/pa-ref-impl/DRLS-GCP'
+  DOCKER_FILE: 'Dockerfile.dev'
 
 include:
 - project: 'gcp-solutions/hcls/claims-modernization/gitlab-ci'
