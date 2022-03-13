@@ -62,6 +62,10 @@ export default class RequestBuilder extends Component {
         this.exitSmart = this.exitSmart.bind(this);
         this.takeSuggestion = this.takeSuggestion.bind(this);
         this.requestBox = React.createRef();
+
+        this.consoleLog(process.env.REACT_APP_AUTH, types.info)
+        this.consoleLog(process.env.REACT_APP_EHR_SERVER, types.info)
+        this.consoleLog(process.env.REACT_APP_EHR_BASE, types.info)
     }
 
 
