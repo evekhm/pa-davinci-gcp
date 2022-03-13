@@ -133,6 +133,9 @@ export default class RequestBuilder extends Component {
 
     submit_info(prefetch, request, patient, extraPrefetch, hook) {
         this.consoleLog("Initiating form submission", types.info);
+        this.consoleLog("REACT_APP_AUTH" + process.env.REACT_APP_AUTH, types.info)
+        this.consoleLog("REACT_APP_EHR_SERVER" + process.env.REACT_APP_EHR_SERVER, types.info)
+        this.consoleLog("REACT_APP_EHR_BASE" + process.env.REACT_APP_EHR_BASE, types.info)
         this.setState({patient});
         
         const hookConfig = {
