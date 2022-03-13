@@ -1,15 +1,15 @@
 {
   "realm": "ClientFhirServer",
   "client": "app-login",
-  "auth": "http://http://35.188.105.178:8180/auth",
-  "server": "http://34.133.116.51:8090",
-  "ehr_server": "http://35.192.36.243:8080/test-ehr/r4",
-  "ehr_base": "http://35.192.36.243:8080/test-ehr/r4",
-  "cds_service":"http://34.133.116.51:8090/r4/cds-services",
+  "auth": "http://localhost:8180/auth",
+  "server": "http://localhost:8090",
+  "ehr_server": "http://localhost:8080/test-ehr/r4",
+  "ehr_base": "http://localhost:8080/test-ehr/r4",
+  "cds_service":"http://localhost:8090/r4/cds-services",
   "order_sign": "order-sign-crd",
   "order_select": "order-select-crd",
   "user": "alice",
   "password": "alice",
-  "public_keys": "http://35.222.152.160:3001/public_keys",
+  "public_keys": "http://localhost:3001/public_keys",
   "alt_drug": true
 }
