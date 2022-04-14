@@ -33,3 +33,4 @@ database.trace.db
 **/.DS_Store
 .idea/
 prior-auth.iml
+/keys.json
