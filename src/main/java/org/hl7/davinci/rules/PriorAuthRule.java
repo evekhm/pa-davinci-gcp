@@ -1,6 +1,8 @@
 package org.hl7.davinci.rules;
 
+import com.google.cloud.storage.StorageException;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +23,14 @@ import org.hl7.davinci.ruleutils.CqlUtils;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Claim;
 import org.hl7.fhir.r4.model.Claim.ItemComponent;
+
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+import org.apache.commons.io.FileUtils;
+import java.nio.file.Paths;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.zeroturnaround.zip.ZipUtil;
 
 /**
  * The main class for executing priorauthorization rules
@@ -95,6 +105,76 @@ public class PriorAuthRule {
         return disposition;
     }
 
+
+    private static String getCdsLibFromGcpCS() {
+        String projectId = PropertyProvider.getProperty("GOOGLE_PROJECTID");
+        String bucketName = PropertyProvider.getProperty("GOOGLE_STORAGE_BUCKET");
+        String objectName = PropertyProvider.getProperty("GOOGLE_STORAGE_DB");
+        String rulesPath = PropertyProvider.getProperty("GOOGLE_STORAGE_RULESPATH");
+        String destFilePath = PropertyProvider.getProperty("GOOGLE_POD_ZIP");
+
+        Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
+        logger.info(String.format("PriorAuthRule::readGcpFileStore() projectId=%s, db=%s, bucket=%s",
+            projectId, objectName, bucketName));
+        Blob blob = null;
+        try {
+            blob = storage.get(bucketName, objectName);
+        } catch (StorageException e) {
+            logger.severe("PriorAuthRule::readGcpFileStore() - Unable to get blob from GCP " + e);
+        }
+
+        if (blob != null) {
+            try {
+                //Check for destination directory
+                File destDirectory = new File(destFilePath);
+                File parentPath = destDirectory.getParentFile();
+                boolean readyForDownload = true;
+                if (!parentPath.exists()){
+                    try {
+                        readyForDownload = parentPath.mkdirs();
+                    } catch (SecurityException exc) {
+                        readyForDownload = false;
+                        logger.severe(String.format("PriorAuthRule::readGcpFileStore() - Unable to create destination directory %s - %s", destFilePath, exc));
+                    }
+                }
+
+                if (readyForDownload && destDirectory.exists() && destDirectory.isDirectory()){
+                    logger.info(String.format("PriorAuthRule::readGcpFileStore() - Removing existing library, to reload with the new one %s - %s/%s",
+                        destDirectory, bucketName, objectName));
+                    try {
+                        FileUtils.deleteDirectory(destDirectory);
+                    } catch (IOException exc) {
+                        readyForDownload = false;
+                        logger.severe(String.format("PriorAuthRule::readGcpFileStore() - Unable to delete existing directory destination directory %s - %s", destDirectory, exc));
+                    }
+                }
+                logger.info(String.valueOf(readyForDownload));
+                if(readyForDownload) {
+                    logger.info(String.format("PriorAuthRule::readGcpFileStore() - Downloading to %s", destFilePath));
+                    blob.downloadTo(Paths.get(destFilePath));
+                    File zipFile = new File(destFilePath);
+                    ZipUtil.explode(zipFile);
+                    File prior_auth_file =  new File(zipFile.getPath() + "/" + rulesPath);
+                    if (!prior_auth_file.exists()) {
+                        logger.severe("PriorAuthRule::readGcpFileStore() - Error path is incorrect " + prior_auth_file.getPath());
+                    }
+                    else {
+                        logger.info("PriorAuthRule::readGcpFileStore() - Resulting path to CDS Library " + prior_auth_file.getPath());
+                        return prior_auth_file.getPath();
+                    }
+                }
+                else
+                    logger.severe("PriorAuthRule::readGcpFileStore() - Could not create local directory " + destFilePath);
+
+            } catch (StorageException e) {
+                logger.severe("PriorAuthRule::reload() - Unable to download blob data inside the pod - " + e);
+            }
+        }
+
+        return null;
+    }
+
+
     /**
      * Use the CDS Library Metadata to populate the table
      * 
@@ -102,7 +182,25 @@ public class PriorAuthRule {
      *         otherwise
      */
     public static boolean populateRulesTable() {
-        String cdsLibraryPath = PropertyProvider.getProperty("CDS_library");
+        boolean gcp_enabled = false;
+        try {
+            gcp_enabled = Boolean.parseBoolean(PropertyProvider.getProperty("GCP_ENABLED"));
+        } catch (Exception e) {
+            logger.warning("PriorAuthRule::populateRulesTable() - gcp_enabled property not set, using default local behavior");
+        }
+
+        String cdsLibraryPath;
+        if (gcp_enabled) {
+            cdsLibraryPath = getCdsLibFromGcpCS();
+        }else
+        {
+            cdsLibraryPath = PropertyProvider.getProperty("CDS_library");
+        }
+
+        if (cdsLibraryPath == null) {
+            logger.severe("PriorAuthRule::populateRulesTable() - Unable to load Rules Table" );
+            return false;
+        }
         File filePath = new File(cdsLibraryPath);
 
         File[] topics = filePath.listFiles();
