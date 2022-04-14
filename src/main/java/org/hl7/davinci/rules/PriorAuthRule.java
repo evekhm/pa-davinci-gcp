@@ -70,7 +70,7 @@ public class PriorAuthRule {
     /**
      * Determine the disposition of the Claim by executing the bundle against the
      * CQL rule file
-     * 
+     *
      * @param bundle   - the Claim Bundle
      * @param sequence - the sequence ID of the claim item to compute the
      *                 disposition of
@@ -81,7 +81,7 @@ public class PriorAuthRule {
 
         Claim claim = FhirUtils.getClaimFromRequestBundle(bundle);
         ItemComponent claimItem = claim.getItem().stream().filter(item -> item.getSequence() == sequence).findFirst()
-                .get();
+            .get();
         String elmFile = getRuleFileFromItem(claimItem);
         Disposition disposition;
         if (elmFile == null) {
@@ -90,7 +90,7 @@ public class PriorAuthRule {
         } else {
             String elm = CqlUtils.readFile(elmFile);
             Context context = CqlUtils.createBundleContextFromElm(elm, bundle, App.getFhirContext(),
-                    App.getModelResolver());
+                App.getModelResolver());
 
             if (executeRule(context, Rule.GRANTED))
                 disposition = Disposition.GRANTED;
@@ -177,7 +177,7 @@ public class PriorAuthRule {
 
     /**
      * Use the CDS Library Metadata to populate the table
-     * 
+     *
      * @return true if all of the mappings were written successfully, false
      *         otherwise
      */
@@ -230,7 +230,7 @@ public class PriorAuthRule {
                                         String elmFileName = metadata.getTopic() + "PriorAuthRule.elm.xml";
                                         Map<String, Object> dataMap = new HashMap<String, Object>();
                                         dataMap.put("system",
-                                                CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(mapping.getCodeSystem()));
+                                            CODE_SYSTEM_SHORT_NAME_TO_FULL_NAME.get(mapping.getCodeSystem()));
                                         dataMap.put("code", code);
                                         dataMap.put("topic", topicName);
                                         dataMap.put("rule", elmFileName);
@@ -253,7 +253,7 @@ public class PriorAuthRule {
 
     /**
      * Execute the rule on a given bundle and determine the disposition
-     * 
+     *
      * @param rule - the CQL expression to execute
      * @return true if the PriorAuth is granted, false otherwise
      */
@@ -265,15 +265,15 @@ public class PriorAuthRule {
             return (boolean) rawValue;
         } catch (Exception e) {
             logger.log(Level.SEVERE,
-                    "Rule " + rule.value() + " did not return a boolean (Returned value: " + rawValue.toString() + ")",
-                    e);
+                "Rule " + rule.value() + " did not return a boolean (Returned value: " + rawValue.toString() + ")",
+                e);
             return false;
         }
     }
 
     /**
      * Get the Rule rule file name based on the requested item
-     * 
+     *
      * @param claimItem - the item requested
      * @return name of the rule file
      */
