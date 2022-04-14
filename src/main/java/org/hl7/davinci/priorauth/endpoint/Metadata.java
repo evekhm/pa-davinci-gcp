@@ -9,6 +9,7 @@ import org.hl7.davinci.priorauth.Audit;
 import org.hl7.davinci.priorauth.FhirUtils;
 import org.hl7.davinci.priorauth.Audit.AuditEventOutcome;
 import org.hl7.davinci.priorauth.Audit.AuditEventType;
+import org.hl7.davinci.priorauth.PropertyProvider;
 import org.hl7.fhir.r4.model.CapabilityStatement;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.StringType;
@@ -103,7 +104,8 @@ public class Metadata {
     security.setCors(true);
     Extension oauthUris = new Extension("http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris");
     // Extension tokenUri = new Extension("token", new UriType("https://localhost:9000/fhir/auth/token"));
-    Extension tokenUri = new Extension("token", new UriType("https://davinci-prior-auth.logicahealth.org/fhir/auth/token"));
+    String tokenBase = PropertyProvider.getProperty("TOKEN_BASE_URI");
+    Extension tokenUri = new Extension("token", new UriType(tokenBase + "/fhir/auth/token"));
     oauthUris.addExtension(tokenUri);
     security.addExtension(oauthUris);
     rest.setSecurity(security);
