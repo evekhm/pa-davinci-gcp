@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require('webpack'); // remember to require this, because we DefinePlugin is a webpack plugin
 
 module.exports = {
 	mode: "production",
@@ -46,5 +47,12 @@ module.exports = {
 	},
     node: {
         fs: "empty"
-      }
+      },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL),
+      'process.env.REACT_APP_PROVIDER_LOGO': JSON.stringify(process.env.REACT_APP_PROVIDER_LOGO)
+    }),
+  ]
 };
+
