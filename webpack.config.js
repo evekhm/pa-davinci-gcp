@@ -50,8 +50,7 @@ module.exports = {
       },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL),
-      'process.env.REACT_APP_PROVIDER_LOGO': JSON.stringify(process.env.REACT_APP_PROVIDER_LOGO)
+      'process.env.REACT_APP_PA_BASE_URL': JSON.stringify(process.env.REACT_APP_PA_BASE_URL),
     }),
   ]
 };

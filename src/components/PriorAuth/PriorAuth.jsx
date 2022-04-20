@@ -14,6 +14,7 @@ var dMEOrdersEnabled = false;
 export default class PriorAuth extends Component {
   constructor(props) {
     super(props);
+    console.log("REACT_APP_PA_BASE_URL =" + process.env.REACT_APP_PA_BASE_URL);
     this.state = {
       claimResponseBundle: null,
       subscriptionType: null,
@@ -859,7 +860,7 @@ export default class PriorAuth extends Component {
                     type="text"
                     className="form-control"
                     id="priorauthEndpoint"
-                    defaultValue="https://davinci-prior-auth.logicahealth.org/fhir"
+                    defaultValue={process.env.REACT_APP_PA_BASE_URL ? process.env.REACT_APP_PA_BASE_URL + "/fhir": "https://davinci-prior-auth.logicahealth.org/fhir"}
                     onChange={(e) =>
                       this.setState({ priorAuthBase: e.target.value })
                     }
