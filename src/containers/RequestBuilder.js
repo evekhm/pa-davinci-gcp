@@ -11,7 +11,7 @@ import RequestBox from '../components/RequestBox/RequestBox';
 import buildRequest from '../util/buildRequest.js';
 import { types, headers, defaultValues } from '../util/data.js';
 import { createJwt, login, setupKeys } from '../util/auth';
-
+import cymbalHealthLogo from './CymbalHealthLogo.svg';
 
 export default class RequestBuilder extends Component {
     constructor(props) {
@@ -278,10 +278,10 @@ export default class RequestBuilder extends Component {
         return (
             <div>
                 <div className="nav-header">
+                    <img src={cymbalHealthLogo} height="70px" alt="SVG as an image"/>
                     <button className={"launch-button left-button btn btn-class " + (this.state.ehrLaunch ? "active" : "not-active")} onClick={() => this.updateStateElement("ehrLaunch", true)}>EHR Launch</button>
                     <button className={"launch-button right-button btn btn-class " + (!this.state.ehrLaunch ? "active" : "not-active")} onClick={() => this.updateStateElement("ehrLaunch", false)}>Standalone</button>
                     <button className={"btn btn-class settings " + (this.state.showSettings ? "active" : "not-active")} onClick={() => this.updateStateElement("showSettings", !this.state.showSettings)}><span className="glyphicon glyphicon-cog settings-icon" /></button>
-
                 </div>
 
                 {/* {this.state.ehrLaunch?
