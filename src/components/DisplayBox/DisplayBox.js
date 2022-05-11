@@ -9,6 +9,7 @@ import axios from 'axios';
 import SMARTBox from '../SMARTBox/SMARTBox';
 import ReactMarkdown from 'react-markdown';
 import './displayBox.css';
+import cymbalLogo from './Horizontal.svg';
 
 const propTypes = {
     /**
@@ -383,11 +384,20 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl, fhirVersion) {
                   />
                 ));
               }
+
+              // -- Type --
+              var typeSection = "";
+              if (card.source.hasOwnProperty("topic")) {
+                typeSection = card.source.topic.display ? <div style={{color: summaryColors.info}}><ReactMarkdown source={card.source.topic.display} /></div> : <Text color='grey'>None</Text>;
+              }
     
               const cardSectionHeaderStyle = { marginBottom: '2px', color: 'black' };
 
               const builtCard = (
                 <TerraCard key={cardInd} className='decision-card alert-info'>
+                  <div>
+                    <img src={cymbalLogo} alt="SVG as an image"/>
+                  </div>
                   <h4 style={cardSectionHeaderStyle}>Summary</h4>
                   <div>{summarySection}</div>
 
@@ -403,12 +413,20 @@ retrieveLaunchContext(link, accessToken, patientId, fhirBaseUrl, fhirVersion) {
                   <div className={styles['links-section']}>
                     {linksSection}
                   </div>
+                  <h4 style={cardSectionHeaderStyle}>Type</h4>
+                  <div>{typeSection}</div>
                 </TerraCard>);
       
               renderedCards.push(builtCard);
             });
           }
-          if (renderedCards.length === 0) { return <div><div className='decision-card alert-warning'>No Cards</div></div>; }
+          if (renderedCards.length === 0) { 
+            return <div>
+                      <div className='decision-card alert-warning'>
+                        No Cards
+                      </div>
+                    </div>; 
+          }
           return <div>
                   <div>
                   {renderedCards}

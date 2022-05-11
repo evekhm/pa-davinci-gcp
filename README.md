@@ -12,4 +12,3 @@ This subproject provides a small web application that is capable of generating C
   * `npm start`
 
 This should open a browser window directed to http://localhost:3000. The request-generator assumes the CRD server is running on `localhost:8090`. This can be changed in the properties file [properties.json](src/properties.json).
-
