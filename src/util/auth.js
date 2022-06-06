@@ -67,6 +67,9 @@ function setupKeys(callback) {
   const jwkPub2 = KEYUTIL.getJWKFromKey(pubKeyObj);
   const kid = KJUR.jws.JWS.getJWKthumbprint(jwkPub2)
 
+  const {GoogleAuth} = require('google-auth-library');
+  const auth = new GoogleAuth();
+
   const keypair = {
       private: jwkPrv2,
       public: jwkPub2,
@@ -78,13 +81,17 @@ function setupKeys(callback) {
     "id": kid
   };
 
+    console.log("Token " + process.env.REACT_APP_TOKEN);
+
   fetch(`${(process.env.REACT_APP_PUBLIC_KEYS ? process.env.REACT_APP_PUBLIC_KEYS : config.public_keys)}/`, {
     "body": JSON.stringify(pubPem),
     "headers": {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization" : "Bearer " + process.env.REACT_APP_TOKEN
     },
     "method": "POST"
   }).then((response) => {
+      console.log("Worked! ");
       callback(keypair);
   }).catch((error) => {
       console.log(error);
