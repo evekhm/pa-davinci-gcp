@@ -34,7 +34,7 @@ do
 done )  & CONTINUOUS_INSTALL_PID=$!
 
 # Start server process once initial build finishes  
-( npm run start | tee ./logs/runner.log ) & SERVER_PID=$!
+( npm run startProd | tee ./logs/runner.log ) & SERVER_PID=$!
 
 # Handle application background process exiting
 wait $CONTINUOUS_INSTALL_PID $SERVER_PID
