@@ -54,7 +54,12 @@ export default class App extends Component {
         //   infoClass: "error"
         // }
       ],
-      allFieldsFilled: false
+      allFieldsFilled: false,
+      isAdaptiveFormWithoutExtension: false,
+      isFetchingArtifacts: true,
+      reloadQuestionnaire: false,
+      adFormCompleted: false,
+      adFormResponseFromServer: undefined
     };
     this.smart = props.smart;
     this.patientId = props.patientId;
@@ -70,7 +75,7 @@ export default class App extends Component {
 
   componentDidMount() {
       if(!this.props.standalone) {
-          this.ehrLaunch();
+        this.ehrLaunch(false);
       }
   }
 
@@ -88,9 +93,27 @@ export default class App extends Component {
       });
   }
 
-  ehrLaunch() {
+  updateQuestionnaire(updatedQuestionnaire) {
+    this.setState({
+      questionnaire: updatedQuestionnaire,
+      reloadQuestionnaire: true,
+    })
+  }
+
+  ehrLaunch(isContainedQuestionnaire, questionnaire) {
+    // Temporary indication before full supports for relaunch is implemented
+    if(!this.appContext.request) {
+      alert("Supports for relaunch will be added in the near future!");
+      this.consoleLog("Supports for relaunch will be added in the near future!", "errorClass");
+      return;
+    }
     const deviceRequest = JSON.parse(this.appContext.request.replace(/\\/g,""));
     this.consoleLog("fetching artifacts", "infoClass");
+    this.setState({
+      isFetchingArtifacts: true
+    })
+    const reloadQuestionnaire = questionnaire !== undefined;
+  
     fetchFhirVersion(this.props.smart.state.serverUrl)
     .then(fhirVersion => {
       this.fhirVersion = fhirVersion;
@@ -98,10 +121,11 @@ export default class App extends Component {
       fetchArtifacts(
         this.props.FHIR_PREFIX,
         this.props.FILE_PREFIX,
-        this.appContext.template,
+        !isContainedQuestionnaire ? this.appContext.template : questionnaire,
         this.fhirVersion,
         this.smart,
-        this.consoleLog
+        this.consoleLog,
+        isContainedQuestionnaire
       )
         .then(artifacts => {
           console.log("fetched needed artifacts:", artifacts);
@@ -110,6 +134,8 @@ export default class App extends Component {
 
           this.setState({ questionnaire: artifacts.questionnaire });
           this.setState({ deviceRequest: deviceRequest });
+          this.setState({ isAdaptiveFormWithoutExtension: artifacts.questionnaire.meta && artifacts.questionnaire.meta.profile && artifacts.questionnaire.meta.profile.includes("http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-adapt") && (artifacts.questionnaire.extension === undefined || !artifacts.questionnaire.extension.includes(e => e.url === "http://hl7.org/fhir/StructureDefinition/cqf-library")) });
+          this.setState({ });
           // execute for each main library
           return Promise.all(
             artifacts.mainLibraryElms.map(mainLibraryElm => {
@@ -137,7 +163,7 @@ export default class App extends Component {
               const executionInputs = {
                 elm: mainLibraryElm,
                 // look at main library elms to determine dependent elms to include
-                elmDependencies: mainLibraryElm.library.includes.def.map(
+                elmDependencies: mainLibraryElm.library.includes ? mainLibraryElm.library.includes.def.map(
                   includeStatement => {
                     let foundLibrary = artifacts.dependentElms.find(elm => {
                       return (
@@ -152,7 +178,7 @@ export default class App extends Component {
                       this.consoleLog(`Could not find library ${includeStatement.path}. Check if it is referenced in FHIR Library (${mainLibraryElm.library.identifier.id}) properly.`, `errorClass`)
                     }
                   }
-                ),
+                ) : undefined,
                 valueSetDB: {},
                 parameters: parameterObj,
                 mainLibraryMaps: artifacts.mainLibraryMaps
@@ -216,8 +242,12 @@ export default class App extends Component {
             }
           });
           console.log(fullBundle);
-          this.setState({ bundle: fullBundle });
-          this.setState({ cqlPrepopulationResults: allLibrariesResults });
+          this.setState({ 
+            bundle: fullBundle,
+            cqlPrepopulationResults: allLibrariesResults, 
+            isFetchingArtifacts: false,
+            reloadQuestionnaire
+          });
         });
     });
   }
@@ -239,6 +269,9 @@ export default class App extends Component {
 
   // fill the valueSetDB in executionInputs with the required valuesets from their artifact source
   fillValueSetDB(executionInputs, artifacts) {
+    if (!executionInputs.elmDependencies) {
+      return;
+    }
     // create list of all ELMs that will be used
     let allElms = executionInputs.elmDependencies.slice();
     allElms.push(executionInputs.elm);
@@ -406,7 +439,7 @@ export default class App extends Component {
 
       items.map((element) => {
           // filter all not-empty items
-          if(element.tagName === "INPUT") { 
+          if(element.tagName === "INPUT" || element.tagName === "TEXTAREA") { 
             // check if the item is one of the gtable, if yes, need to make sure all the
             let inputRowElement = element.closest('.lf-table-item');
             if (inputRowElement) {
@@ -550,16 +583,18 @@ export default class App extends Component {
   }
 
   render() {
-
     if (
       (this.state.questionnaire &&
         this.state.cqlPrepopulationResults &&
-        this.state.bundle) ||
+        this.state.bundle)
+      ||
       (this.state.questionnaire && 
         this.state.response && 
         this.props.standalone)
+      || (this.state.questionnaire && 
+        this.state.isAdaptiveFormWithoutExtension)
     ) {
-      return (
+      return this.state.isFetchingArtifacts ? (<div> Fetching resources ... </div>) :(
           <div>
         <div className="App">
           {this.renderErrors()}
@@ -586,11 +621,20 @@ export default class App extends Component {
               fhirVersion={this.fhirVersion.toUpperCase()}
               smart={this.smart}
               FHIR_PREFIX={this.props.FHIR_PREFIX}
+              FILE_PATH={this.props.FILE_PREFIX}
               renderButtons={this.renderButtons}
               filterFieldsFn={this.filter}
               filterChecked={this.state.filter}
               formFilled={this.state.allFieldsFilled}
               formFilledSetFn={(status)=> this.setState({allFieldsFilled: status})}
+              updateQuestionnaire={this.updateQuestionnaire.bind(this)}
+              ehrLaunch={this.ehrLaunch}
+              reloadQuestionnaire={this.state.reloadQuestionnaire}
+              updateReloadQuestionnaire={(reload) => this.setState({reloadQuestionnaire: reload})}
+              adFormCompleted={this.state.adFormCompleted}
+              updateAdFormCompleted={(completed) => this.setState({adFormCompleted: completed})}
+              adFormResponseFromServer={this.state.adFormResponseFromServer}
+              updateAdFormResponseFromServer={(response) => this.setState({adFormResponseFromServer: response})}
             />
           )}
         </div>

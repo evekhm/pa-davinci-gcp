@@ -10,7 +10,7 @@
     "buildFrontendDev": "webpack --config ./webpack.config.js",
     "startBackendProd": "node ./bin/prod",
     "startBackendTemplate": "node ./bin/template",
-    "startBackendDev": "nodemon --watch public ./bin/dev",
+    "startBackendDev": "nodemon --inspect=0.0.0.0:3006 --watch public ./bin/dev ",
     "lint": "node ./node_modules/.bin/eslint --ext .js ./"
   },
   "devDependencies": {
@@ -49,7 +49,7 @@
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.21",
     "lowdb": "^1.0.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "pdfmake": "^0.1.56",
     "pem": "^1.14.4",
     "react": "^16.8.4",
@@ -59,6 +59,7 @@
     "regenerator-runtime": "^0.12.1",
     "shortid": "^2.2.15",
     "url-search-params-polyfill": "^7.0.1",
+    "webpack": "^4.28.3",
     "whatwg-fetch": "^3.0.0"
   },
   "browsersList": [
