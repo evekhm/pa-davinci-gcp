@@ -41,7 +41,7 @@ const headers = {
     }, 
     "launchUrl" : {
         "display": "DTR Launch URL",
-        "value": (process.env.LAUNCH_URL ? process.env.LAUNCH_URL : config.launch_url),
+        "value": (process.env.REACT_APP_LAUNCH_URL ? process.env.REACT_APP_LAUNCH_URL : config.launch_url),
         "key": "launchUrl"
     },
     "responseExpirationDays" : {
