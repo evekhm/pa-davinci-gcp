@@ -63,3 +63,5 @@ typings/
 # local build files
 build/
 /.idea/
+
+package-lock.json

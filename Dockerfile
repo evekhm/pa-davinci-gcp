@@ -1,7 +1,7 @@
 FROM node:14-alpine
-WORKDIR /home/node/app
+WORKDIR /home/node/app/crd-request-generator
 COPY --chown=node:node . .
 RUN npm install
-RUN npm run build
+COPY --chown=node:node . .
 EXPOSE 3000
-CMD npm run production
+CMD npm run start
