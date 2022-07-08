@@ -73,7 +73,6 @@ public class GCPFileStore extends CommonFileStore {
     logger.info(String.format("GCPFileStore::reload() projectId=%s, db=%s, bucket=%s",
         projectId, objectName, bucketName));
 
-    logger.info(System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
     Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
     Blob blob = null;
 
