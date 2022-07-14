@@ -23,7 +23,7 @@ export default class RequestBuilder extends Component {
             code: null,
             codeSystem: null,
             response: null,
-            token: null,
+            token: headers.token.value,
             oauth: false,
             prefetch: true,
             loading: false,

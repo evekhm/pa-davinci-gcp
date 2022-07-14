@@ -1,6 +1,10 @@
 
 export default function buildRequest(request, patient, ehrUrl, token, prefetch, includePrefetch, extraPrefetch, hook, hookConfig) {
     const r4json = {
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization" : "Bearer " + process.env.REACT_APP_CDS_TOKEN
+        },
         "hookInstance": "d1577c69-dfbe-44ad-ba6d-3e05e953b2ea",
         "fhirServer": ehrUrl,
         "hook": hook,

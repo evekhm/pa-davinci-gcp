@@ -48,7 +48,12 @@ const headers = {
         "display": "In Progress Form Expiration Days",
         "value": (process.env.FORM_EXPIRATION_DAYS ? process.env.FORM_EXPIRATION_DAYS : config.response_expiration_days),
         "key": "responseExpirationDays"
-    }
+    },
+    "token": {
+        "display": "EHR Token",
+        "value": (process.env.REACT_APP_FHIR_TOKEN ? process.env.REACT_APP_FHIR_TOKEN : ""),
+        "key": "token"
+    },
 }
 
 const genderOptions = {
