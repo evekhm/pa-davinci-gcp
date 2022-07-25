@@ -21,7 +21,7 @@ export default class PriorAuth extends Component {
       subscribeMsg: "",
       showRestHookForm: false,
       showLink: false,
-      priorAuthBase: "https://davinci-prior-auth.logicahealth.org/fhir",
+      priorAuthBase: process.env.REACT_APP_PA_BASE_URL ? process.env.REACT_APP_PA_BASE_URL : "https://davinci-prior-auth.logicahealth.org/fhir",
       isSubmitted: false,
       priorAuthId: null,
       patientId: null,
@@ -489,7 +489,7 @@ export default class PriorAuth extends Component {
       kid: "3ab8b05b64d799e289e10a201786b38c"
     };
     const headerStr = JSON.stringify(header);
-
+    console.log("aud:" + this.state.tokenUrl);
     const fiveMinutes = 350;
     const payload = {
       iss: PASConfig.clientId,
@@ -683,10 +683,19 @@ export default class PriorAuth extends Component {
   }
 
   renderResponseItems(claimResponse) {
+    console.log("Let the fun being ... ")
     const children = [];
     claimResponse.item.forEach((item) => {
+      console.log("Here are we are in the loop ... ")
       const claimItem = this.getClaimItem(item.itemSequence);
-      const requestedItemCoding = claimItem.productOrService.coding[0];
+      console.log("ClaimItem retrieved!")
+      const requestedItemCoding = "DummyCode"
+      console.log("Retrieving claimItem.productOrService... " + claimItem.productOrService)
+      if (claimItem.productOrService !== undefined &&  claimItem.productOrService !== null ){
+        const requestedItemCoding = claimItem.productOrService.coding[0];
+        console.log("Coding claimItem.productOrService... " + requestedItemCoding)
+      }
+      console.log("Still hanging!")
       const requestedItemText = requestedItemCoding.display
         ? requestedItemCoding.display
         : `${requestedItemCoding.system}:${requestedItemCoding.code}`;
@@ -860,7 +869,7 @@ export default class PriorAuth extends Component {
                     type="text"
                     className="form-control"
                     id="priorauthEndpoint"
-                    defaultValue={process.env.REACT_APP_PA_BASE_URL ? process.env.REACT_APP_PA_BASE_URL + "/fhir": "https://davinci-prior-auth.logicahealth.org/fhir"}
+                    defaultValue={process.env.REACT_APP_PA_BASE_URL ? process.env.REACT_APP_PA_BASE_URL : "https://davinci-prior-auth.logicahealth.org/fhir"}
                     onChange={(e) =>
                       this.setState({ priorAuthBase: e.target.value })
                     }
