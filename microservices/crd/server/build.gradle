@@ -1,0 +1,168 @@
+buildscript {
+    ext {
+        springBootVersion = '2.4.1'
+    }
+    repositories {
+        mavenCentral()
+        maven { url 'https://repo.spring.io/snapshot' }
+        maven { url 'http://repo.jenkins-ci.org/releases/' }
+
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'maven'
+//apply plugin: 'war'
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+processResources {
+    from ('CDS-Library') {
+        into 'CDS-Library'
+    }
+}   
+
+dependencies {
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+    compile project(':resources')
+    compile project(':operations')
+
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('org.springframework.boot:spring-boot-starter-data-rest')
+    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+    compile('org.springframework.boot:spring-boot-starter-security')
+
+    compile('com.h2database:h2')
+
+    compile("io.jsonwebtoken:jjwt:0.7.0")
+
+//    compile 'javax.servlet:javax.servlet-api:3.1.0'
+
+    compile 'commons-beanutils:commons-beanutils:1.9.3'
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile "com.github.tomakehurst:wiremock-standalone:2.18.0"
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-base:5.3.0'
+    compile 'ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.3.0'
+
+    compile 'com.jayway.jsonpath:json-path:2.4.0'
+    compile 'joda-time:joda-time:2.10.5'
+
+    //cql stuff
+    compile (group: 'org.opencds.cqf.cql', name: 'engine', version: '1.5.1') {
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+    compile (group: 'org.opencds.cqf.cql', name: 'engine.fhir', version: '1.5.1') {
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+
+    //Use locally compiled cql libs (engine and fhir)
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile group: 'info.cqframework', name: 'cql-to-elm', version: '1.5.1'
+
+    compile 'org.zeroturnaround:zt-zip:1.13'
+
+    compile group: 'org.kohsuke', name:'github-api', version:'1.77'
+
+    implementation platform("com.google.cloud:libraries-bom:20.6.0");
+    implementation("com.google.cloud:google-cloud-storage");
+}
+
+task buildReact(type:Exec) {
+    workingDir 'src/main/resources/node_interfaces'
+    commandLine './buildout.sh'
+}
+
+task embedDtr() {
+    doLast {
+        embedDtrScript()
+    }
+}
+
+void embedDtrScript() {
+    exec {
+        workingDir './'
+        commandLine 'git','clone','https://github.com/HL7-DaVinci/dtr.git','tempFolder'
+    }
+    exec {
+        workingDir 'tempFolder'
+        commandLine 'yarn', 'install'
+    }
+    exec {
+        workingDir 'tempFolder'
+        commandLine 'yarn', 'build'
+    }
+    exec {
+        workingDir './'
+        commandLine 'rm', '-rf', 'src/main/resources/static/smart'
+    }
+    exec {
+        workingDir './'
+        commandLine 'cp', '-a', 'tempFolder/public', 'src/main/resources/static/smart'
+    }
+    exec {
+        workingDir './'
+        commandLine 'rm', '-rf', 'tempFolder'
+    }
+}
+
+task embedCdsLibrary() {
+    doFirst {
+        exec {
+            workingDir './'
+            commandLine 'rm', '-rf', 'CDS-Library'
+        }
+    }
+
+    doLast {
+        if (project.hasProperty('branch')) {
+            cloneCdsLibraryScript(branch)
+        } else {
+            cloneCdsLibraryScript('master')
+        }
+    }
+}
+
+task updateCdsLibrary() {
+    doLast {
+        if (project.hasProperty('branch')) {
+            checkoutCdsLibraryScript(branch)
+            pullCdsLibraryScript()
+        } else {
+            pullCdsLibraryScript()
+        }
+    }
+}
+
+void cloneCdsLibraryScript(branch) {
+    println "GIT: clone CDS-Library branch " + branch
+    exec {
+        workingDir './'
+        commandLine 'git', 'clone', 'https://github.com/mcode/CDS-Library.git', 'CDS-Library'
+    }
+    checkoutCdsLibraryScript(branch)
+}
+
+void pullCdsLibraryScript() {
+    println "GIT: pull latest CDS-Library"
+    exec {
+        workingDir './CDS-Library'
+        commandLine 'git', 'pull'
+    }
+}
+
+void checkoutCdsLibraryScript(branch) {
+    println "GIT: checkout CDS-Library branch " + branch
+    exec {
+        workingDir './CDS-Library'
+        commandLine 'git', 'checkout', branch
+    }
+}
+
