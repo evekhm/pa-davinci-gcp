@@ -1,0 +1,52 @@
+{
+  "name": "request-generator",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "http://localhost:8080",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "base64url": "^3.0.0",
+    "classnames": "^2.2.6",
+    "fhirclient": "^2.3.1",
+    "json-server": "^0.16.3",
+    "jsrsasign": "^10.2.0",
+    "keypair": "^1.0.1",
+    "lodash": "^4.17.15",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-loader-spinner": "^2.1.0",
+    "react-markdown": "^4.3.1",
+    "react-scripts": "^3.4.1",
+    "sass": "^1.32.8",
+    "semantic-ui-react": "^0.82.3",
+    "terra-base": "^3.19.0",
+    "terra-button": "^2.19.0",
+    "terra-card": "^2.18.0",
+    "terra-text": "^2.18.0"
+  },
+  "scripts": {
+    "start": "concurrently --kill-others \"json-server --watch src/db.json -p 3001 --host 0.0.0.0\" \"react-scripts start\"",
+    "production": "json-server --watch src/db.json -p 3000 --host 0.0.0.0 --static build",
+    "startx": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "concurrently": "^4.1.0",
+    "fs": "0.0.1-security",
+    "jju": "^1.4.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

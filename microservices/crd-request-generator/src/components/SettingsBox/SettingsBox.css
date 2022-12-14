@@ -1,0 +1,23 @@
+
+.setting-input {
+    margin: 1px 0 10px 0;
+    border-color: #999;
+    border-width: 1px;
+    border-style:solid;
+    height: 25px;
+}
+
+
+.setting-checkbox {
+    padding: 2px 4px;
+}
+
+.setting-inner-checkbox {
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.setting-header{
+    font-size:12px;
+    margin:0;
+}

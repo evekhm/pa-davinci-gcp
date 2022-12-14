@@ -1,0 +1,96 @@
+.smartBox{
+    position: absolute;
+    left:15%;
+    top:15%;
+    margin-bottom:50px;
+    display:block;
+    height:825px;
+    width:70%;
+    z-index:1;
+    font-size:14px;
+    background-color: #f9f9f9;
+    border: 1px solid black;
+}
+
+iframe{
+    width:100%;
+    height:100%;
+}
+
+.patient-selection-box{
+    width:100%;
+    height:100px;
+    padding:10px;
+    flex:.5;
+    border-bottom:3px solid black;
+    background-color:#e2e2e2;
+}
+
+.patient-selection-box:hover{
+    background-color:white;
+    cursor: pointer;
+}
+
+.smartExit{
+
+    height:24px;
+    border-style: solid;
+    border-color:black;
+    background-color: #d9534f;
+    color:white;
+    font-family: 'Courier New', Courier, monospace;
+    border-width: 0px 0px 0px 1px;
+    float:right;
+}
+
+.smartHeader {
+    background-color: #5f636a;
+    display:block;
+    border-bottom: 1px solid black;
+    height:25px;
+}
+.smartMinimize{
+    position:absolute;
+    right:-25px;
+    border: 2px solid gray;
+    width:27px;
+    top:21px;
+}
+
+.minimizedFrame{
+    border-style: solid;
+    border-color: blue gray gray gray;
+    border-width: 2px;
+    padding: 2px;
+    margin-left: 10px;
+}
+.hideSmartBox {
+    display:none;
+}
+
+.more-info {
+    float:right;
+}
+
+.patient-info {
+    display:inline-block;
+    width: 300px;
+}
+
+.request-info {
+    display: inline-block;
+    width:350px;
+    vertical-align: top; /* here */
+
+}
+
+.ehr-setting {
+    margin: 10px;
+}
+
+.ui.header.text, .sub.header {
+    text-align: left;
+}
+.ui.header.text {
+    font-size: 1em;
+}
