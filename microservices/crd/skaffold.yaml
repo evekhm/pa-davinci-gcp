@@ -1,0 +1,31 @@
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: crd-service
+build:
+  googleCloudBuild: {}
+  tagPolicy:
+    gitCommit: {}
+  artifacts:
+  - image: crd
+    docker:
+      dockerfile: Dockerfile.dev
+#profiles:
+#- name: dev
+#  activation:
+#  - kubeContext: gke_solutions-template-sandbox_us-central1_default-cluster
+#  build:
+#    googleCloudBuild: {}
+#    artifacts:
+#    - image: crd
+#      jib: {}
+#      sync:
+#        infer:
+#          - '**/*.py'
+#          - '**/*.json'
+#  deploy:
+#    kubectl: { }
+#  manifests:
+#    kustomize:
+#      paths:
+#      - ./kustomize/dev

@@ -11,7 +11,7 @@ steps:
       - '--cache-from'
       - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY}/${_IMAGE}:latest'
       - '-f'
-      - Dockerfile
+      - Dockerfile.dev
       - .
 
   - name: gcr.io/cloud-builders/docker
