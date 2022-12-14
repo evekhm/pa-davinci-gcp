@@ -1,0 +1,7 @@
+include:
+- project: 'gcp-solutions/hcls/claims-modernization/gitlab-ci'
+  file: '/.gitlab/ci/.build.gitlab-ci.yml'
+
+stages:
+- build
+
