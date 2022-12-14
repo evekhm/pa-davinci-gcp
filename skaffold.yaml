@@ -4,8 +4,5 @@ kind: Config
 metadata:
   name: backends
 requires:
-- path: ./common
-  configs: [common]
-
-- path: ./microservices/sample_service
-  configs: [sample-service]
+- path: ./microservices/crd
+  configs: [crd]
