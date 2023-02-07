@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    application: dtr
+  name: dtr
+spec:
+  serviceName: dtr-service
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      application: dtr
+  template:
+    metadata:
+      labels:
+        application: dtr
+    spec:
+      serviceAccountName: gke-sa
+      containers:
+      - image: __IMAGE__
+        env:
+        - name: REACT_APP_PA_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: env-vars
+              key: pa_base_url
+        - name: REACT_APP_SERVER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: dtr-config
+              key: server-port
+        - name: REACT_APP_INITIAL_CLIENT
+          valueFrom:
+            configMapKeyRef:
+              name: env-vars
+              key: initial-client
+        name: dtr
+        ports:
+        - name: http
+          containerPort: 3005
+        volumeMounts:
+        - name: lowdb-persistent-storage
+          mountPath: /home/node/app/dtr/databaseData
+        # Liveness probe configuration
+#        livenessProbe:
+#          httpGet:
+#            path: /register
+#            port: 3005
+#          initialDelaySeconds: 0
+#          timeoutSeconds: 5
+        # Readiness probe configuration
+        readinessProbe:
+          httpGet:
+            path: /register
+            port: 3005
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 1
+            memory: 4Gi
+            ephemeral-storage: 4Gi
+          limits:
+            cpu: 2
+            memory: 8Gi
+            ephemeral-storage: 5Gi
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+      - name: lowdb-persistent-storage
+        persistentVolumeClaim:
+          claimName: lowdb-volumeclaim
+      restartPolicy: Always

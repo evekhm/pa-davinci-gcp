@@ -10,3 +10,8 @@ export TF_VAR_api_domain=$API_DOMAIN
 export TF_VAR_project_id=$PROJECT_ID
 export TF_BUCKET_NAME="${PROJECT_ID}-tfstate"
 export TF_BUCKET_LOCATION="us"
+
+# dtr
+export PA_BASE_URL="${PRIOR_AUTH}/fhir"
+export INITIAL_CLIENT="${TEST_EHR}/test-ehr/r4::app-login"
+echo PA_BASE_URL=$PA_BASE_URL INITIAL_CLIENT=$INITIAL_CLIENT

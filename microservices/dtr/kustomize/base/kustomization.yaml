@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ./deployment.yaml
+- ./service.yaml
+- ./config.yaml
+- ./pv.yaml
+configMapGenerator:
+- name: env-vars
+  envs:
+  - env.properties
+images:
+- name: __IMAGE__
+  newName: gcr.io/$PROJECT_ID/dtr:latest
+  newTag: latest
