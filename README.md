@@ -1,8 +1,19 @@
+
 # Table of contents
 
 
-This is a customized version of installation Guide that installs CDA engine using Public End point and connects to the existing DocAI Processor Project.
-For other flavours and more detailed steps, check the original full [README](../README.md).
+- [Table of contents](#table-of-contents)
+  * [Pre-requisites](#pre-requisites)
+    + [Running from the development machine](#running-from-the-development-machine)
+    + [VSAC Key](#vsac-key)
+  * [Consumed Resources <a name="resources"></a>](#consumed-resources)
+    + [Deploy microservices](#deploy-microservices)
+  * [Run the DRLS Flow](#run-the-drls-flow)
+
+
+
+This is a customized version of the original Documentation Requirements Lookup Service (DRLS) that deploys all applications as microservices on GKE.
+For the original instructions and in-depth explanations, refer to [DaVinci GitHub page](https://github.com/HL7-DaVinci/CRD/blob/master/SetupGuideForMacOS.md) 
 
 ## Pre-requisites
 ### Running from the development machine
@@ -30,6 +41,8 @@ Each deployed Prior-Auth Solution consumes following resources:
 *Container-native load balancing enables load balancers to target Pods directly and to make load distribution decisions at the Pod-level instead of at the VM-level.
 
 
+## Installation
+* Create new project on GCP
 * Set env variable for _PROJECT_ID_:
 ```shell
 export PROJECT_ID=<YOUR_PROJECT_ID>
@@ -62,7 +75,7 @@ After successfully execution, you should see line like this at the end:
 ```
 
 ### Deploy microservices
-Build/deploy microservices (using skaffold + kustomize):
+* Build/deploy microservices (using skaffold + kustomize):
 ```shell
 bash -e ./deploy.sh
 ```
