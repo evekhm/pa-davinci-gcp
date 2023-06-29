@@ -1,71 +1,64 @@
-#!/usr/bin/env bash
-#set -e # Exit if error is detected during pipeline execution => terraform failing
+#!/bin/bash
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -e # Exit if error is detected during pipeline execution => terraform failing
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PWD=$(pwd)
+
+LOG="$DIR/init.log"
+filename=$(basename $0)
+timestamp=$(date +"%m-%d-%Y_%H:%M:%S")
+
+echo "$timestamp - Running $filename ... " | tee "$LOG"
+
+if [[ -z "${API_DOMAIN}" ]]; then
+  echo "API_DOMAIN env variable is not set. It should be set to either customized domain name or using a dummy name mydomain.com". | tee -a "$LOG"
+  exit
+fi
+
+if [[ -z "${PROJECT_ID}" ]]; then
+  echo "PROJECT_ID variable is not set". | tee -a "$LOG"
+  exit
+fi
+
 source "${DIR}"/SET
 gcloud config set project $PROJECT_ID
-gcloud auth login
-gcloud auth application-default login
+
+# Run following commands when executing from the local development machine (and not from Cloud Shell)
+#gcloud auth login
+#gcloud auth application-default login
 
 export ORGANIZATION_ID=$(gcloud organizations list --format="value(name)")
 export ADMIN_EMAIL=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
 export TF_VAR_admin_email=${ADMIN_EMAIL}
 
-# For Argolis Only
-#gcloud resource-manager org-policies disable-enforce constraints/compute.requireOsLogin --organization=$ORGANIZATION_ID
-#gcloud resource-manager org-policies delete constraints/compute.vmExternalIpAccess --organization=$ORGANIZATION_ID
 
-
-bash "${DIR}"/setup/setup_terraform.sh
+bash "${DIR}"/setup/setup_terraform.sh  2>&1 | tee -a "$LOG"
 
 cd "${DIR}/terraform/environments/dev" || exit
-terraform init -backend-config=bucket=$TF_BUCKET_NAME
 
-terraform apply -target=module.project_services -target=module.service_accounts -auto-approve
-sleep 40
-terraform apply  -auto-approve
+terraform init -backend-config=bucket="$TF_BUCKET_NAME" -upgrade  2>&1 | tee -a "$LOG"
+terraform apply -target=module.project_services -target=module.service_accounts  -auto-approve  2>&1 | tee -a "$LOG"
+terraform apply -auto-approve  2>&1 | tee -a "$LOG"
 
-# eventarc and ksa are always failing when running first time. Re-running apply command is an overcall (due re-building Cloud Run), but works
-# terraform apply -target=module.gke -target=module.eventarc -auto-approve
-terraform apply  -auto-approve
-
-bash ../../../setup/update_config.sh
-
-gsutil cp "${DIR}/common/src/common/parser_config.json" "gs://${PROJECT_ID}/config/parser_config.json"
-# TODO Add instructions on Cloud DNS Setup for API_DOMAIN
-
-# Cloud DNS
-# Enable Cloud DNS API
-# https://docs.google.com/document/d/1oHpOwUfeIMKfe7b1UN7Vd1OoZzn9Gndxvmi-ANcxB_Q/preview?resourcekey=0-pAmIVo-ap-zCzd_HD-W5IQ
-# gcloud dns --project=pa-document-ai managed-zones create pa-docai-demo --description="" --dns-name="evekhm.demo.altostrat.com." --visibility="public" --dnssec-state="off"
-
-# REGISTRAR SETUP
-#ns-cloud-e1.googledomains.com.
-#ns-cloud-e2.googledomains.com.
-#ns-cloud-e3.googledomains.com.
-#ns-cloud-e4.googledomains.com.
-
-# Submit a DNS delegation request
-
+cd "${PWD}"
 gcloud container clusters get-credentials main-cluster --region $REGION --project $PROJECT_ID
+"${DIR}/deploy_endpoints.sh" | tee -a "$LOG"
+
+timestamp=$(date +"%m-%d-%Y_%H:%M:%S")
+echo "$timestamp Completed! Saved Log into $LOG" | tee -a "$LOG"
 
 
-
-####
-
-# Register SSH key'= to access local repository
-See https://cloud.google.com/source-repositories/docs/authentication#register_a_public_key
-
-cd pa-davinci-gcp/
-
-gcloud artifacts repositories create my-repository \
-  --repository-format=docker \
-  --location=$REGION
-
-git config --global user.email "you@example.com"
-git config --global user.name "Your Name"
-
-
-gcloud source repos create pa-da-vinci
-git remote add google \
-"https://source.developers.google.com/p/${PROJECT_ID}/r/pa-da-vinci"
 

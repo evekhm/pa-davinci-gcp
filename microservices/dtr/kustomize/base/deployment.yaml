@@ -17,14 +17,13 @@ spec:
       labels:
         application: dtr
     spec:
-      serviceAccountName: gke-sa
       containers:
-      - image: __IMAGE__
+      - image: dtr
         env:
         - name: REACT_APP_PA_BASE_URL
           valueFrom:
             configMapKeyRef:
-              name: env-vars
+              name: dtr-config
               key: pa_base_url
         - name: REACT_APP_SERVER_PORT
           valueFrom:
@@ -34,7 +33,7 @@ spec:
         - name: REACT_APP_INITIAL_CLIENT
           valueFrom:
             configMapKeyRef:
-              name: env-vars
+              name: dtr-config
               key: initial-client
         name: dtr
         ports:
@@ -66,8 +65,6 @@ spec:
             cpu: 2
             memory: 8Gi
             ephemeral-storage: 5Gi
-      imagePullSecrets:
-      - name: regcred
       volumes:
       - name: lowdb-persistent-storage
         persistentVolumeClaim:

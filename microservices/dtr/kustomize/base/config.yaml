@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: dtr-config
-data:
-  server-port: '3005'

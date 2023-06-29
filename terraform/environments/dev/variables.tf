@@ -25,6 +25,7 @@ variable "project_id" {
   }
 }
 
+
 variable "region" {
   type        = string
   description = "GCP Region"
@@ -55,23 +56,67 @@ variable "env" {
 
 variable "cluster_name" {
   type    = string
-  default = "pa-davinci-cluster"
+  default = "main-cluster"
 }
 
-variable "gke_sa_name" {
-  type    = string
-  default = "gke-sa"
-  description = "Service Name for GKE workload Identity"
+variable "network_config" {
+  description = "Shared VPC network configurations to use. If null networks will be created in projects with preconfigured values."
+  type = object({
+    host_project      = string
+    network           = string
+    subnet            = string
+    serverless_subnet = string
+    region            = string
+    gke_secondary_ranges = object({
+      pods     = string
+      services = string
+    })
+  })
+  default = null
 }
+
 
 variable "network" {
   type    = string
-  default = "pa-vpc"
+  default = "default-vpc"
+}
+
+variable "secondary_ranges_pods" {
+  type = object({
+    range_name    = string
+    ip_cidr_range = string
+  })
+
+  default = {
+    range_name    = "secondary-pod-range-01"
+    ip_cidr_range = "10.1.0.0/16"
+  }
+}
+
+variable "secondary_ranges_services" {
+  type = object({
+    range_name    = string
+    ip_cidr_range = string
+  })
+  default = {
+    range_name    = "secondary-service-range-01"
+    ip_cidr_range = "10.2.0.0/16"
+  }
 }
 
 variable "subnetwork" {
   type    = string
-  default = "pa-subnetwork"
+  default = "cde-subnetwork-01"
+}
+
+variable "serverless_subnet" {
+  type    = string
+  default = "pa-subnet"
+}
+
+variable "vpc_connector_name" {
+  type    = string
+  default = "pa-vpc-serverless"
 }
 
 #adding new variables for the updated scripts
@@ -98,12 +143,21 @@ variable "admin_email" {
   description = "email of the cert issuer"
 }
 
-variable "api_domain" {
+variable "bucket" {
   type        = string
-  description = "api domain name"
+  description = "Bucket to store solution  files"
 }
 
-variable "cds_lib_bucket_name" {
+variable "service_account_name_gke" {
   type        = string
-  description = "Bucket to store CDS-libraries"
+  default     = "gke-sa"
+  description = "Service account name for the GKE node."
+  # This service account will be created in both GCP and GKE, and will be
+  # used for workload federation in all microservices.
+}
+
+variable "master_ipv4_cidr_block" {
+  type        = string
+  description = "The IP range in CIDR notation to use for the hosted master network"
+  default     = "172.16.0.0/28"
 }

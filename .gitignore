@@ -1,0 +1,8 @@
+/microservices/crd/kustomize/base/config.yaml
+/microservices/crd/.kpt-pipeline/
+/microservices/crd-request-generator/kustomize/base/config.yaml
+/microservices/dtr/kustomize/base/config.yaml
+/microservices/prior-auth/kustomize/base/config.yaml
+/microservices/test-ehr/kustomize/base/config.yaml
+/deploy.log
+/init.log

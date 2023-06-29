@@ -1,17 +1,66 @@
-echo "Using PROJECT_ID=$PROJECT_ID and API_DOMAIN=$API_DOMAIN"
-export REGION=us-central1
+#!/usr/bin/env bash
 export BASE_DIR=$(pwd)
+export REGION=us-central1
+export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/.endpoints"
 
-# A custom domain like your-domain.com, or leave it blank for using the Ingress IP address instead.
+# Shared VPC Config
+export NETWORK=default-vpc
+
+# Terraform Variable
 export TF_LOG_PATH="$BASE_DIR"/tf.log
 #export TF_LOG="DEBUG"
-export TF_VAR_api_domain=$API_DOMAIN
-
 export TF_VAR_project_id=$PROJECT_ID
+
 export TF_BUCKET_NAME="${PROJECT_ID}-tfstate"
 export TF_BUCKET_LOCATION="us"
+export TF_VAR_bucket="${PROJECT_ID}"
+export TF_VAR_region=$REGION
+export TF_VAR_network=$NETWORK
 
-# dtr
+
+# used by Microservices
+export BUCKET=${TF_VAR_bucket}
+export DEBUG=True
+export KSA_NAME=gke-sa
+export DB_NAME="CDS-Library.zip"
+
+######
+## Endpoints Structure to be used in the Deployment
+#export AUTH="https://${API_DOMAIN}/auth"
+#export CRD="https://${API_DOMAIN}/crd"
+#export DTR="https://${API_DOMAIN}/dtr"
+#export TEST_EHR="https://${API_DOMAIN}/test-ehr"
+#export PRIOR_AUTH="https://${API_DOMAIN}/prior-auth"
+#export CRD_REQUEST_GENERATOR="https://${API_DOMAIN}/emr"
+
+export KUBE_NAMESPACE="default"
+## Endpoints Structure to be used in the Deployment
+export AUTH_EP="auth.${KUBE_NAMESPACE}.endpoints.${PROJECT_ID}.cloud.goog"
+export CRD_EP="crd.${KUBE_NAMESPACE}.endpoints.${PROJECT_ID}.cloud.goog"
+export DTR_EP="dtr.${KUBE_NAMESPACE}.endpoints.${PROJECT_ID}.cloud.goog"
+export TEST_EHR_EP="test-ehr.${KUBE_NAMESPACE}.endpoints.${PROJECT_ID}.cloud.goog"
+export PRIOR_AUTH_EP="prior-auth.${KUBE_NAMESPACE}.endpoints.${PROJECT_ID}.cloud.goog"
+export CRD_REQUEST_GENERATOR_EP="emr.${KUBE_NAMESPACE}.endpoints.${PROJECT_ID}.cloud.goog"
+
+SCHEMA="https://"
+export AUTH="${SCHEMA}${AUTH_EP}"
+export CRD="${SCHEMA}${CRD_EP}"
+export DTR="${SCHEMA}${DTR_EP}"
+export TEST_EHR="${SCHEMA}${TEST_EHR_EP}"
+export CRD_REQUEST_GENERATOR="${SCHEMA}${CRD_REQUEST_GENERATOR_EP}"
+export PRIOR_AUTH="${SCHEMA}${PRIOR_AUTH_EP}"
+
+export OAUTH_TOKEN="${AUTH}/auth/realms/ClientFhirServer/protocol/openid-connect/token"
+export OAUTH_AUTHORIZE="${AUTH}/auth/realms/ClientFhirServer/protocol/openid-connect/auth"
+export CDS_SERVICE="${CRD}/r4/cds-services"
+export FHIR_SERVER="${TEST_EHR}/test-ehr/r4"
+export PUBLIC_KEYS="${CRD_REQUEST_GENERATOR}/public_keys"
+export ORDER_SELECT="order-select-crd"
+export ORDER_SIGN="order-sign-crd"
+
 export PA_BASE_URL="${PRIOR_AUTH}/fhir"
 export INITIAL_CLIENT="${TEST_EHR}/test-ehr/r4::app-login"
+echo "Using PROJECT_ID=$TF_VAR_project_id, BUCKET=$BUCKET"
 echo PA_BASE_URL=$PA_BASE_URL INITIAL_CLIENT=$INITIAL_CLIENT

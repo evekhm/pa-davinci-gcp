@@ -1,0 +1,24 @@
+[submodule "microservices/crd/src"]
+	path = microservices/crd/src
+	url = git@github.com:evekhm/CRD.git
+	branch = gcpDev
+[submodule "microservices/crd/microservices/crd/src"]
+	path = microservices/crd/microservices/crd/src
+	url = git@github.com:evekhm/CRD.git
+	branch = gcpDev
+[submodule "microservices/crd-request-generator/src"]
+	path = microservices/crd-request-generator/src
+	url = git@github.com:evekhm/crd-request-generator.git
+	branch = gcpDev
+[submodule "microservices/dtr/src"]
+	path = microservices/dtr/src
+	url = git@github.com:evekhm/dtr.git
+	branch = gcpDev
+[submodule "microservices/test-ehr/src"]
+	path = microservices/test-ehr/src
+	url = git@github.com:evekhm/test-ehr.git
+	branch = gcpDev
+[submodule "microservices/prior-auth/src"]
+	path = microservices/prior-auth/src
+	url = git@github.com:evekhm/prior-auth.git
+	branch = gcpDev
