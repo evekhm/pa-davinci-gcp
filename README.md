@@ -7,7 +7,7 @@
     + [Running from the development machine](#running-from-the-development-machine)
     + [VSAC Key](#vsac-key)
   * [Consumed Resources <a name="resources"></a>](#consumed-resources)
-    + [Deploy microservices](#deploy-microservices)
+  + [Installation](#installation)
   * [Run the DRLS Flow](#run-the-drls-flow)
 
 
