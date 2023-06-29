@@ -55,7 +55,7 @@ terraform apply -auto-approve  2>&1 | tee -a "$LOG"
 
 cd "${PWD}"
 gcloud container clusters get-credentials main-cluster --region $REGION --project $PROJECT_ID
-"${DIR}/deploy_endpoints.sh" | tee -a "$LOG"
+
 
 timestamp=$(date +"%m-%d-%Y_%H:%M:%S")
 echo "$timestamp Completed! Saved Log into $LOG" | tee -a "$LOG"

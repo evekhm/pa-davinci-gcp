@@ -59,6 +59,7 @@ fi
 bash apply.sh
 skaffold run -p prod --default-repo=gcr.io/${PROJECT_ID} | tee -a "$LOG"
 
+"${DIR}/deploy_endpoints.sh" | tee -a "$LOG"
 
 timestamp=$(date +"%m-%d-%Y_%H:%M:%S")
 echo "$timestamp Finished. Saved Log into $LOG"  | tee -a "$LOG"

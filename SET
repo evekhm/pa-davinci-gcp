@@ -2,8 +2,6 @@
 export BASE_DIR=$(pwd)
 export REGION=us-central1
 export USE_GKE_GCLOUD_AUTH_PLUGIN=True
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "$DIR/.endpoints"
 
 # Shared VPC Config
 export NETWORK=default-vpc
