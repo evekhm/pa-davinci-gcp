@@ -16,8 +16,6 @@ This is a customized version of the original Documentation Requirements Lookup S
 For the original instructions and in-depth explanations, refer to [DaVinci GitHub page](https://github.com/HL7-DaVinci/CRD/blob/master/SetupGuideForMacOS.md) 
 
 ## Pre-requisites
-### Running from the development machine
-Cloud Shell will timeout on the deployment command and therefore development machine is required to build and deploy applications.
 
 ### VSAC Key
 Additionally, you must have credentials (api key) access to the **[Value Set Authority Center (VSAC)](https://vsac.nlm.nih.gov/)**. These credentials are required for allowing DRLS to pull down updates to value sets that are housed in VSAC. If you don't already have VSAC credentials, you should [create them using UMLS](https://www.nlm.nih.gov/research/umls/index.html).
